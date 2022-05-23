@@ -12,7 +12,7 @@ namespace SnakeGame_v1
 {
     public partial class Background : Form
     {
-        int cols = 25, rows = 25, score = 0, dx = 0, dy = 0, front = 0, back = 0;
+        int cols = 27, rows = 27, score = 0, dx = 0, dy = 0, front = 0, back = 0;
         Piece[] snake = new Piece[1250];
         List<int> available = new List<int>();
         bool[,] visit;
@@ -20,6 +20,8 @@ namespace SnakeGame_v1
         Random rand = new Random();
 
         Timer timer = new Timer();
+
+        KeyEventArgs prev;
 
         public Background()
         {
@@ -30,7 +32,7 @@ namespace SnakeGame_v1
 
         private void launchTimer()
         {
-            timer.Interval = 50;
+            timer.Interval = 75;
             timer.Tick += move;
             timer.Start();
 
@@ -93,8 +95,16 @@ namespace SnakeGame_v1
                 }
             }
             int idx = rand.Next(available.Count) % available.Count;
-            Food.Left = (available[idx] * 20) % Width;
-            Food.Top = (available[idx] * 20) / Width * 20;
+            int numLeft = ((available[idx] * 20) % Width);
+            int numTop = ((available[idx] * 20) / Width * 20);
+
+            if (numLeft < 20) numLeft += 20;
+            else if (numLeft > 500) numLeft -= 20;
+            else if (numTop < 20) numTop += 20;
+            else if (numTop > 500) numTop -= 20;
+
+            Food.Left = numLeft;
+            Food.Top = numTop;
 
         }
 
@@ -111,23 +121,37 @@ namespace SnakeGame_v1
 
         private void Background_KeyDown(object sender, KeyEventArgs e)
         {
-            dx = dy = 0;
+            if (prev == null) prev = e;
+            Boolean change = false;
             switch (e.KeyCode)
             {
                 case Keys.Right:
+                    if (prev.KeyCode == Keys.Left) break;
+                    dx = dy = 0;
                     dx = 20;
+                    change = true;
                     break;
                 case Keys.Left:
+                    if (prev.KeyCode == Keys.Right) break;
+                    dx = dy = 0;
                     dx = -20;
+                    change = true;
                     break;
                 case Keys.Up:
+                    if (prev.KeyCode == Keys.Down) break;
+                    dx = dy = 0;
                     dy = -20;
+                    change = true;
                     break;
                 case Keys.Down:
+                    if (prev.KeyCode == Keys.Up) break;
+                    dx = dy = 0;
                     dy = 20;
+                    change = true;
                     break;
 
             }
+            if (change) prev = e;
         }
 
         private bool collisionFood(int x, int y)
@@ -137,16 +161,16 @@ namespace SnakeGame_v1
 
         private bool game_over(int x, int y)
         {
-            return x < 0 || y < 0 || x > 480 || y > 480;
+            return x < 20 || y < 20 || x > 500 || y > 500;
         }
 
         private void initial()
         {
             visit = new bool[rows, cols];
             Piece head 
-                = new Piece((rand.Next() % cols) * 20, (rand.Next() % rows) * 20);
-            Food.Location 
-                = new Point((rand.Next() % cols) * 20, (rand.Next() % rows) * 20);
+                = new Piece(260, 260);
+            Food.Location
+                = new Point(260, 200);
             for(int i = 0; i < rows; i++)
             {
                 for(int j = 0; j < cols; j++)

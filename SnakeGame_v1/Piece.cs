@@ -13,7 +13,7 @@ namespace SnakeGame_v1
         {
             Location = new System.Drawing.Point(x, y);
             Size = new System.Drawing.Size(20, 20);
-            BackColor = System.Drawing.Color.Orange;
+            BackColor = System.Drawing.Color.SteelBlue;
             Enabled = false;
         }
     }
